@@ -1,0 +1,72 @@
+defaultTasks 'hello','printFiles2'
+
+task names {
+	myname = "Neo"
+}
+
+task hello(dependsOn: 'counter') << {
+	println "hello world..." + names.myname
+}
+
+task counter << {
+	10.times {
+		println "count number:$it"
+	}
+}
+
+4.times { index -> 
+	task "dynTask$index" << {
+		println "do task $index"
+	}
+}
+
+/*===============================================*/
+task calling << {
+	println "do calling..."
+}
+
+calling.doFirst {
+	println "before calling..."	
+}
+
+calling.doLast {
+	println "after calling..."	
+}
+
+calling << {
+	println "call OK"
+}
+
+/*===============================================*/
+task printFiles << {
+	def files = file("..").listFiles().sort();
+	files.each {File f ->
+		if (f.isFile()) {
+			println "file:$f.name"
+		}
+	}
+}
+
+task printFiles2 << {
+	file("..").listFiles({f -> f.isFile()} as FileFilter).sort().each {f -> println "file:$f.name"}
+}
+
+/*===============================================*/
+task daddy << {
+	println "hi,my son $cname"
+}
+
+task son(dependsOn: 'daddy') << {
+	println "hi,daddy..."
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+	if (taskGraph.hasTask(son)){
+		cname = 'Jonny'
+	}
+	else {
+		cname = ""
+	}
+}
+
+/*===============================================*/
